@@ -3,22 +3,17 @@ package com.hks.hns.gravestone.client.Events;
 import com.hks.hns.gravestone.client.GravestoneClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
@@ -51,7 +46,11 @@ public class BlockInteract{
         if (block == null) return;
         if (block.getDefaultState().getBlock() == Blocks.OAK_SIGN) {
             if (playerInventory.containsKey(block)) {
-                NamedScreenHandlerFactory screenHandlerFactory = GenericContainerScreenHandler.createGeneric9x6(ScreenHandlerRegistry., player.getInventory(), playerInventory.get(block));
+                int syncId = player.currentScreenHandler.syncId;
+                GenericContainerScreenHandler screenHandlerFactory = GenericContainerScreenHandler.createGeneric9x6(syncId, player.getInventory(), playerInventory.get(block));
+                //make GenericContainerScreenHandler to NamedScreenHandlerFactory else it wont work
+                player.openHandledScreen(screenHandlerFactory);
+
             }
         }
     }}
