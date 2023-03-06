@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "Gravestone",
+  "version": "${version}",
+  "name": "Gravestone",
+  "description": "Creates a Gravestone when someone dies",
+  "authors": [
+    "HNS_yt"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/Gravestone/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "client": [
+      "com.hks.hns.gravestone.client.GravestoneClient"
+    ],
+    "main": [
+      "com.hks.hns.gravestone.Gravestone"
+    ]
+  },
+  "mixins": [
+    "Gravestone.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.17",
+    "fabric": "*",
+    "minecraft": "1.19.3"
+  }
+}
