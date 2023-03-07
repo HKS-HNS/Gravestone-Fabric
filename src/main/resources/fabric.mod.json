@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "Gravestone",
+  "id": "gravestone",
   "version": "${version}",
   "name": "Gravestone",
   "description": "Creates a Gravestone when someone dies",
@@ -9,7 +9,6 @@
   ],
   "contact": {},
   "license": "MIT",
-  "icon": "assets/Gravestone/icon.png",
   "environment": "server",
   "entrypoints": {
     "client": [
