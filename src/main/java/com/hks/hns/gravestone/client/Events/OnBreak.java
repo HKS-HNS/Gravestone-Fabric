@@ -21,44 +21,39 @@ import java.util.HashMap;
 @Environment(EnvType.SERVER)
 @Mixin(Block.class)
 public class OnBreak {
-    HashMap<BlockPos, Inventory> playerInventory = Data.getPlayerInventory();
-
-    @Inject(at = @At("HEAD"), method = "onBroken(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V")
+    private static HashMap < BlockPos, Inventory > playerInventory = Data.getPlayerInventory();
+    @Inject(at = @At("HEAD"), method = "onBroken")
     public void onBlockBreak(WorldAccess world, BlockPos pos, BlockState state, CallbackInfo ci) {
-
-        dropItems(world, pos);
+        dropItems(world, pos, 1);
     }
     //on Explode
     @Inject(at = @At("HEAD"), method = "onDestroyedByExplosion")
     public void onBlockExplode(World world, BlockPos pos, Explosion explosion, CallbackInfo ci) {
-        dropItems(world, pos);
+        dropItems(world, pos, 1);
     }
 
-    //on Piston
+    //replace
+    @Inject(at = @At("HEAD"), method = "replace(Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;II)V")
+    private static void onBlockReplace(BlockState state, BlockState newState, WorldAccess world, BlockPos pos, int flags, int maxUpdateDepth, CallbackInfo ci) {
+        if (state.getBlock() != newState.getBlock()) {
+            dropItems(world, pos, 0);
+        }
+    }
 
-
-    private void dropItems(WorldAccess world, BlockPos pos) {
-        System.out.println("Block broken");
-        for (BlockPos key : playerInventory.keySet()) {
-            if (key.equals(pos) || key.equals(pos.down())) {
+    private static void dropItems(WorldAccess world, BlockPos pos, int up) {
+        for (BlockPos key: playerInventory.keySet()) {
+            if (key.equals(pos) || key.equals(pos.up(up))) {
                 // Drop inventory
                 Inventory inventory = playerInventory.get(key);
                 for (int i = 0; i < inventory.size(); i++) {
-                    ItemEntity itemEntity = new ItemEntity(getWorld(world), pos.getX(), pos.getY(), pos.getZ(), inventory.getStack(i));
+                    //spawn item in middle of the block
+                    ItemEntity itemEntity = new ItemEntity((World) world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, inventory.getStack(i));
                     world.spawnEntity(itemEntity);
                 }
                 // Remove from hashmap
                 playerInventory.remove(key);
-                // Stop the block from breaking
             }
         }
     }
 
-    public World getWorld(WorldAccess worldAccess) {
-        if (worldAccess instanceof World) {
-            return (World) worldAccess;
-        } else {
-            throw new IllegalArgumentException("Unsupported WorldAccess implementation");
-        }
-    }
 }
