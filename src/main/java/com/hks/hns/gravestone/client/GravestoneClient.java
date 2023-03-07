@@ -10,14 +10,10 @@ import java.util.HashMap;
 
 @Environment(EnvType.SERVER)
 public class GravestoneClient implements ClientModInitializer {
-    static HashMap<Block, PlayerInventory> playerInventory = new HashMap < > ();
 
     @Override
     public void onInitializeClient() {
 
     }
 
-    public static HashMap<Block, PlayerInventory> getPlayerInventory() {
-        return playerInventory;
-    }
 }
