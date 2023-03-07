@@ -77,7 +77,6 @@ public abstract class OnDeath {
         if (!block.getDefaultState().isAir() && block.getDefaultState().getBlock() != Blocks.WATER) {
             drop = true;
         } else {
-            // Say RIP in chat
             world.setBlockState(pos, Blocks.OAK_SIGN.getDefaultState());
             block = world.getBlockState(pos).getBlock();
             BlockEntity blockEntity = world.getBlockEntity(pos);

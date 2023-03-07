@@ -74,8 +74,6 @@ public class BlockInteract {
 
         if (block.getDefaultState().getBlock() == Blocks.OAK_SIGN) {
             if (playerInventory.containsKey(pos)) {
-                System.out.println("Slots: " + playerInventory.get(pos).size());
-
                 int syncId = getNextContainerId(player);
 
                 NamedScreenHandlerFactory containerProvider = new SimpleNamedScreenHandlerFactory((Inv, Player, In) -> {
