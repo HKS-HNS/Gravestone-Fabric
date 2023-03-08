@@ -21,7 +21,7 @@ import java.util.HashMap;
 @Environment(EnvType.SERVER)
 @Mixin(Block.class)
 public class OnBreak {
-    private static HashMap < BlockPos, Inventory > playerInventory = Data.getPlayerInventory();
+    private static final HashMap < BlockPos, Inventory > playerInventory = Data.getPlayerInventory();
     @Inject(at = @At("HEAD"), method = "onBroken")
     public void onBlockBreak(WorldAccess world, BlockPos pos, BlockState state, CallbackInfo ci) {
         dropItems(world, pos, 1);
