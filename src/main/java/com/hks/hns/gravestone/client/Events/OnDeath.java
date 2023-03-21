@@ -24,21 +24,25 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import java.util.HashMap;
 
 @Environment(EnvType.SERVER)
 @Mixin(ServerPlayerEntity.class)
 public abstract class OnDeath {
-
+    // HashMap to store player inventories
     private final HashMap<BlockPos, Inventory> playerInventories = Data.getPlayerInventory();
 
+    // Helper method to search for the nearest air block
     private static BlockPos searchAir(BlockPos pos, int radius, World world) {
-        // search nearest air block
         RegistryKey<DimensionType> dimension = world.getDimensionKey();
-        if((dimension.equals(DimensionTypes.OVERWORLD) || dimension.equals(DimensionTypes.OVERWORLD_CAVES) )  && pos.getY() < -64 ||( dimension.equals(DimensionTypes.THE_NETHER) || dimension.equals(DimensionTypes.THE_END)) && pos.getY() < 0) {
+
+        // If in the overworld or overworld caves and below y level -64, search a larger radius around y level 0
+        // If in the nether or end and below y level 0, search a larger radius around y level 0
+        if ((dimension.equals(DimensionTypes.OVERWORLD) || dimension.equals(DimensionTypes.OVERWORLD_CAVES)) && pos.getY() < -64 || (dimension.equals(DimensionTypes.THE_NETHER) || dimension.equals(DimensionTypes.THE_END)) && pos.getY() < 0) {
             radius = 100;
+            pos = new BlockPos(pos.getX(), 0, pos.getZ());
         }
+
         BlockPos random = pos.add(radius, radius, radius);
         BlockPos nearest = random;
 
@@ -47,7 +51,10 @@ public abstract class OnDeath {
                 for (int z = -radius; z <= radius; z++) {
                     BlockPos pos2 = new BlockPos(pos.getX() + x, pos.getY() + y, pos.getZ() + z);
                     BlockState state = world.getBlockState(pos2);
+
                     if (state.isAir()) {
+                        // If the current position is an air block and closer to the player's position than the current nearest air block,
+                        // update the nearest air block to the current position
                         if (new Vec3d(pos.getX(), pos.getY(), pos.getZ()).distanceTo(new Vec3d(pos2.getX(), pos2.getY(), pos2.getZ())) < new Vec3d(pos.getX(), pos.getY(), pos.getZ()).distanceTo(new Vec3d(nearest.getX(), nearest.getY(), nearest.getZ()))) {
                             nearest = pos2;
                         }
@@ -56,6 +63,7 @@ public abstract class OnDeath {
             }
         }
 
+        // If no air block was found within the search radius, return the original position
         if (nearest.equals(random)) {
             nearest = pos;
         }
@@ -63,16 +71,17 @@ public abstract class OnDeath {
         return nearest;
     }
 
+    // Injected method that is called when the player dies
     @Shadow
     public abstract void playerTick();
 
-    @Inject(at = @At("HEAD"), method = "onDeath", cancellable = true)
+    @Inject(at = @At("HEAD"),
+            method = "onDeath", cancellable = true)
     public void onPlayerDeath(CallbackInfo ci) {
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
         World world = player.getWorld();
         Block block = world.getBlockState(player.getBlockPos()).getBlock();
         BlockPos pos = player.getBlockPos();
-
         // Clone player inventory
         PlayerInventory playerInventory = player.getInventory();
         boolean drop = false;
