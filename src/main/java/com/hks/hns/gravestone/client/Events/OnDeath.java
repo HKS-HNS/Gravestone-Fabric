@@ -11,11 +11,14 @@ import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.dimension.DimensionTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,6 +35,10 @@ public abstract class OnDeath {
 
     private static BlockPos searchAir(BlockPos pos, int radius, World world) {
         // search nearest air block
+        RegistryKey<DimensionType> dimension = world.getDimensionKey();
+        if((dimension.equals(DimensionTypes.OVERWORLD) || dimension.equals(DimensionTypes.OVERWORLD_CAVES) )  && pos.getY() < -64 ||( dimension.equals(DimensionTypes.THE_NETHER) || dimension.equals(DimensionTypes.THE_END)) && pos.getY() < 0) {
+            radius = 100;
+        }
         BlockPos random = pos.add(radius, radius, radius);
         BlockPos nearest = random;
 
@@ -85,7 +92,6 @@ public abstract class OnDeath {
             signBlockEntity.setTextOnRow(1, Text.of(player.getName().getString()));
             signBlockEntity.markDirty();
             world.updateListeners(pos, block.getDefaultState(), block.getDefaultState(), 3);
-            player.sendMessage(Text.of("RIP " + player.getName().getString()), false);
 
             // Create inventory with 54 slots
             Inventory inventory = new SimpleInventory(54);
