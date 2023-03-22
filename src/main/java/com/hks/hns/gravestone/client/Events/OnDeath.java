@@ -1,6 +1,6 @@
 package com.hks.hns.gravestone.client.Events;
 
-import com.hks.hns.gravestone.Data;
+import com.hks.hns.gravestone.config.Data;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -24,10 +24,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.io.IOException;
 import java.util.HashMap;
 
-import static com.hks.hns.gravestone.Data.savePlayerInventory;
+import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 
 @Environment(EnvType.SERVER)
 @Mixin(ServerPlayerEntity.class)
