@@ -30,13 +30,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.hks.hns.gravestone.Data.savePlayerInventory;
+
 @Environment(EnvType.SERVER)
 @Mixin(ServerPlayerInteractionManager.class)
 public class BlockInteract {
     private static final List<Integer> containerId = new ArrayList<>();
-    @Shadow
-    @Final
-    protected ServerPlayerEntity player;
+
     private final HashMap<BlockPos, Inventory> playerInventory = Data.getPlayerInventory();
 
     private static int getNextContainerId(PlayerEntity player) {
@@ -61,6 +61,7 @@ public class BlockInteract {
         for (BlockPos pos : playerInventory.keySet()) {
             if (isEmpty(playerInventory.get(pos))) {
                 playerInventory.remove(pos);
+                savePlayerInventory();
             }
         }
 

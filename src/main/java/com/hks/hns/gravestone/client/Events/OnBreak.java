@@ -18,6 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 
+import static com.hks.hns.gravestone.Data.savePlayerInventory;
+
 @Environment(EnvType.SERVER)
 @Mixin(Block.class)
 public class OnBreak {
@@ -52,6 +54,7 @@ public class OnBreak {
                 }
                 // Remove from hashmap
                 playerInventory.remove(key);
+                savePlayerInventory();
             }
         }
     }

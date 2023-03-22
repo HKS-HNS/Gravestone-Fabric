@@ -27,6 +27,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.io.IOException;
 import java.util.HashMap;
 
+import static com.hks.hns.gravestone.Data.savePlayerInventory;
+
 @Environment(EnvType.SERVER)
 @Mixin(ServerPlayerEntity.class)
 public abstract class OnDeath {
@@ -119,6 +121,7 @@ public abstract class OnDeath {
                 inventory.setStack(i, playerInventory.getStack(i));
             }
             playerInventories.put(pos, inventory);
+            savePlayerInventory();
         }
 
         // Disable block drop
