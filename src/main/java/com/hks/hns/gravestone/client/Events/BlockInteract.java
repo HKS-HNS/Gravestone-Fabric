@@ -1,5 +1,6 @@
 package com.hks.hns.gravestone.client.Events;
 
+import com.hks.hns.gravestone.BlockWorldPos;
 import com.hks.hns.gravestone.config.Data;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -35,7 +36,7 @@ import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 public class BlockInteract {
     private static final List<Integer> containerId = new ArrayList<>();
 
-    private final HashMap<BlockPos, Inventory> playerInventory = Data.getPlayerInventory();
+    private final HashMap<BlockWorldPos, Inventory> playerInventory = Data.getPlayerInventory();
 
     private static int getNextContainerId(PlayerEntity player) {
         // Find the index of the player's container ID in the containerId list
@@ -56,7 +57,7 @@ public class BlockInteract {
 
     @Inject(at = @At("HEAD"), method = "interactBlock")
     public void interactBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
-        for (BlockPos pos : playerInventory.keySet()) {
+        for (BlockWorldPos pos : playerInventory.keySet()) {
             if (isEmpty(playerInventory.get(pos))) {
                 playerInventory.remove(pos);
                 savePlayerInventory();
@@ -66,18 +67,17 @@ public class BlockInteract {
         // Test if click is right click
         BlockPos pos = hitResult.getBlockPos();
         Block block = world.getBlockState(pos).getBlock();
-
+        BlockWorldPos blockWorldPos = new BlockWorldPos(pos, world.getRegistryKey().getValue());
         if (block == null) {
             return;
         }
-
         if (block.getDefaultState().getBlock() == Blocks.OAK_SIGN) {
-            if (playerInventory.containsKey(pos)) {
+            System.out.println("Sign clicked");
+            if (playerInventory.containsKey(blockWorldPos)) {
+                System.out.println("Gravestone found");
                 int syncId = getNextContainerId(player);
 
-                NamedScreenHandlerFactory containerProvider = new SimpleNamedScreenHandlerFactory((Inv, Player, In) -> {
-                    return GenericContainerScreenHandler.createGeneric9x6(syncId, player.getInventory(), playerInventory.get(pos));
-                }, Text.of("Gravestone"));
+                NamedScreenHandlerFactory containerProvider = new SimpleNamedScreenHandlerFactory((Inv, Player, In) -> GenericContainerScreenHandler.createGeneric9x6(syncId, player.getInventory(), playerInventory.get(blockWorldPos)), Text.of("Gravestone"));
 
                 player.openHandledScreen(containerProvider);
             }

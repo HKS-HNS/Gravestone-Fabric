@@ -1,5 +1,6 @@
 package com.hks.hns.gravestone.client.Events;
 
+import com.hks.hns.gravestone.BlockWorldPos;
 import com.hks.hns.gravestone.config.Data;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -23,7 +24,7 @@ import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 @Environment(EnvType.SERVER)
 @Mixin(Block.class)
 public class OnBreak {
-    private static final HashMap < BlockPos, Inventory > playerInventory = Data.getPlayerInventory();
+    private static final HashMap <BlockWorldPos, Inventory > playerInventory = Data.getPlayerInventory();
     @Inject(at = @At("HEAD"), method = "onBroken")
     public void onBlockBreak(WorldAccess world, BlockPos pos, BlockState state, CallbackInfo ci) {
         dropItems(world, pos, 1);
@@ -43,14 +44,21 @@ public class OnBreak {
     }
 
     private static void dropItems(WorldAccess world, BlockPos pos, int up) {
-        for (BlockPos key: playerInventory.keySet()) {
-            if (key.equals(pos) || key.equals(pos.up(up))) {
+        for (BlockWorldPos key: playerInventory.keySet()) {
+            BlockPos keyPos = key.getBlockPos();
+            if (keyPos.equals(pos) || keyPos.equals(pos.up(up))) {
+                System.out.println(keyPos);
                 // Drop inventory
+                boolean didDrop = false;
                 Inventory inventory = playerInventory.get(key);
                 for (int i = 0; i < inventory.size(); i++) {
                     //spawn item in middle of the block
                     ItemEntity itemEntity = new ItemEntity((World) world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, inventory.getStack(i));
                     world.spawnEntity(itemEntity);
+                    didDrop = true;
+                }
+                if (didDrop) {
+                    System.out.println("Dropped items");
                 }
                 // Remove from hashmap
                 playerInventory.remove(key);

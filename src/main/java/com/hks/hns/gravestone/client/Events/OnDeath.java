@@ -1,5 +1,6 @@
 package com.hks.hns.gravestone.client.Events;
 
+import com.hks.hns.gravestone.BlockWorldPos;
 import com.hks.hns.gravestone.config.Data;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -32,7 +33,7 @@ import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 @Mixin(ServerPlayerEntity.class)
 public abstract class OnDeath {
     // HashMap to store player inventories
-    private final HashMap<BlockPos, Inventory> playerInventories = Data.getPlayerInventory();
+    private final HashMap<BlockWorldPos, Inventory> playerInventories = Data.getPlayerInventory();
 
     // Helper method to check if the player is in the overworld
     private static boolean isOverWorld(World world) {
@@ -94,6 +95,7 @@ public abstract class OnDeath {
         World world = player.getWorld();
         Block block = world.getBlockState(player.getBlockPos()).getBlock();
         BlockPos pos = player.getBlockPos();
+        BlockWorldPos worldPos = new BlockWorldPos(pos, world.getRegistryKey().getValue());
         // Clone player inventory
         PlayerInventory playerInventory = player.getInventory();
         boolean drop = false;
@@ -119,7 +121,8 @@ public abstract class OnDeath {
             for (int i = 0; i < playerInventory.size(); i++) {
                 inventory.setStack(i, playerInventory.getStack(i));
             }
-            playerInventories.put(pos, inventory);
+            worldPos.setPos(pos);
+            playerInventories.put(worldPos, inventory);
             savePlayerInventory();
         }
 
