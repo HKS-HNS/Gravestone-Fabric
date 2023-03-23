@@ -95,7 +95,7 @@ public abstract class OnDeath {
         World world = player.getWorld();
         Block block = world.getBlockState(player.getBlockPos()).getBlock();
         BlockPos pos = player.getBlockPos();
-        BlockWorldPos worldPos = new BlockWorldPos(pos, world.getRegistryKey().getValue());
+        BlockWorldPos worldPos = new BlockWorldPos(pos, world);
         // Clone player inventory
         PlayerInventory playerInventory = player.getInventory();
         boolean drop = false;

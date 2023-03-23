@@ -1,28 +1,26 @@
 package com.hks.hns.gravestone;
 
+import java.util.Objects;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.World;
 
-public class BlockWorldPos  {
+public class BlockWorldPos {
     double x;
     double y;
     double z;
-    String world;
+    World world;
 
-    public BlockWorldPos(double x, double y, double z, Identifier world) {
+    public BlockWorldPos(double x, double y, double z, World world) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.world = world.toString();
+        this.world = world;
     }
 
-    public BlockWorldPos(@NotNull BlockPos pos, Identifier world) {
-        this.x = pos.getX();
-        this.y = pos.getY();
-        this.z = pos.getZ();
-        this.world = world.toString();
+    public BlockWorldPos(BlockPos pos, World world) {
+        this(pos.getX(), pos.getY(), pos.getZ(), world);
     }
 
     public BlockPos getBlockPos() {
@@ -33,8 +31,8 @@ public class BlockWorldPos  {
         return new Vec3i(x, y, z);
     }
 
-    public Identifier getWorld() {
-        return Identifier.tryParse(world);
+    public World getWorld() {
+        return world;
     }
 
     public double getX() {
@@ -49,8 +47,8 @@ public class BlockWorldPos  {
         return z;
     }
 
-    public void setWorld(Identifier world) {
-        this.world = world.toString();
+    public void setWorld(World world) {
+        this.world = world;
     }
 
     public void setPos(double x, double y, double z) {
@@ -60,9 +58,22 @@ public class BlockWorldPos  {
     }
 
     public void setPos(BlockPos pos) {
-        this.x = pos.getX();
-        this.y = pos.getY();
-        this.z = pos.getZ();
+        setPos(pos.getX(), pos.getY(), pos.getZ());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BlockWorldPos)) return false;
+        BlockWorldPos that = (BlockWorldPos) o;
+        return Double.compare(that.x, x) == 0 &&
+                Double.compare(that.y, y) == 0 &&
+                Double.compare(that.z, z) == 0 &&
+                Objects.equals(world, that.world);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z, world);
+    }
 }

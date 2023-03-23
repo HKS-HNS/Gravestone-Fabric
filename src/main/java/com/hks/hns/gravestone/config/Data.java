@@ -50,7 +50,7 @@ public class Data {
             posObject.addProperty("x", pos.getX());
             posObject.addProperty("y", pos.getY());
             posObject.addProperty("z", pos.getZ());
-            posObject.addProperty("world", pos.getWorld().toString());
+            posObject.addProperty("world", pos.getWorld().getRegistryKey().getValue().toString());
 
             JsonArray inventoryArray = new JsonArray();
             Inventory inventory = playerInventory.get(pos);
@@ -93,8 +93,8 @@ public class Data {
                 String world = posObject.get("world").getAsString();
                 // TODO: Create own BlockPos class that has world as a field
                 //get server world with world name
-
-                BlockWorldPos pos = new BlockWorldPos(x, y, z, Identifier.tryParse(world));
+                Identifier identifier = Identifier.tryParse(world);
+                BlockWorldPos pos = new BlockWorldPos(x, y, z, server.getWorld(RegistryKey.of(RegistryKey.ofRegistry(identifier), identifier)));
 
                 JsonArray inventoryArray = posObject.get("inventory").getAsJsonArray();
                 Inventory inventory = new SimpleInventory(54);

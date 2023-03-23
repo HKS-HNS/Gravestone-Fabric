@@ -67,7 +67,7 @@ public class BlockInteract {
         // Test if click is right click
         BlockPos pos = hitResult.getBlockPos();
         Block block = world.getBlockState(pos).getBlock();
-        BlockWorldPos blockWorldPos = new BlockWorldPos(pos, world.getRegistryKey().getValue());
+        BlockWorldPos blockWorldPos = new BlockWorldPos(pos, world);
         if (block == null) {
             return;
         }
