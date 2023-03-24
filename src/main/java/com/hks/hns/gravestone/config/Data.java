@@ -3,27 +3,17 @@ package com.hks.hns.gravestone.config;
 import com.google.gson.*;
 import com.hks.hns.gravestone.BlockWorldPos;
 import com.hks.hns.gravestone.Gravestone;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.command.CommandSource;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerMetadata;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import org.apache.logging.log4j.core.jmx.Server;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Watchable;
 import java.util.HashMap;
 
 public class Data {
@@ -40,6 +30,11 @@ public class Data {
         return playerInventory;
     }
 
+    /**
+     * Saves the player inventory data to a JSON file.
+     * Each BlockPos and its corresponding inventory are saved as a JSON object.
+     * The world registry and world ID are also saved for each BlockPos.
+     */
     public static void savePlayerInventory() {
         JsonObject jsonObject = new JsonObject();
         JsonArray jsonArray = new JsonArray();
@@ -50,7 +45,8 @@ public class Data {
             posObject.addProperty("x", pos.getX());
             posObject.addProperty("y", pos.getY());
             posObject.addProperty("z", pos.getZ());
-            posObject.addProperty("world", pos.getWorld().getRegistryKey().getValue().toString());
+            posObject.addProperty("worldRegistry", String.valueOf(pos.getWorld().getRegistryKey().getRegistry().toString()));
+            posObject.addProperty("world", String.valueOf(pos.getWorld().getRegistryKey().getValue().toString()));
 
             JsonArray inventoryArray = new JsonArray();
             Inventory inventory = playerInventory.get(pos);
@@ -72,14 +68,21 @@ public class Data {
         }
     }
 
+    /**
+     * Loads the player inventory data from a JSON file.
+     * Each JSON object in the file represents a BlockPos and its corresponding inventory.
+     * The world registry and world ID are also loaded for each BlockPos.
+     */
     public static void loadPlayerInventory() {
         // If the save file does not exist, return
         MinecraftServer server = Gravestone.getServer();
         if (!saveFile.exists() || server == null) {
             return;
         }
+
         // Clear the HashMap
         playerInventory.clear();
+
         try (FileReader reader = new FileReader(saveFile)) {
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray jsonArray = jsonObject.get("playerInventory").getAsJsonArray();
@@ -91,10 +94,10 @@ public class Data {
                 int y = posObject.get("y").getAsInt();
                 int z = posObject.get("z").getAsInt();
                 String world = posObject.get("world").getAsString();
-                // TODO: Create own BlockPos class that has world as a field
-                //get server world with world name
-                Identifier identifier = Identifier.tryParse(world);
-                BlockWorldPos pos = new BlockWorldPos(x, y, z, server.getWorld(RegistryKey.of(RegistryKey.ofRegistry(identifier), identifier)));
+                String worldRegistry = posObject.get("worldRegistry").getAsString();
+                Identifier dimensionId = Identifier.tryParse(worldRegistry);
+                Identifier worldId = new Identifier(world);
+                BlockWorldPos pos = new BlockWorldPos(x, y, z, server.getWorld(RegistryKey.of(RegistryKey.ofRegistry(dimensionId), worldId)));
 
                 JsonArray inventoryArray = posObject.get("inventory").getAsJsonArray();
                 Inventory inventory = new SimpleInventory(54);

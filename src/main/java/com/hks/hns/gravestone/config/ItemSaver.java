@@ -7,14 +7,18 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.item.ItemStack;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Optional;
 
 public class ItemSaver {
 
     /**
      * Save an ItemStack to a file
-     * @param stack the ItemStack to save
+     *
+     * @param stack    the ItemStack to save
      * @param filename the name of the file to save to
      * @throws IOException if there is an error writing to the file
      */
@@ -30,6 +34,7 @@ public class ItemSaver {
 
     /**
      * Load an ItemStack from a file
+     *
      * @param filename the name of the file to load from
      * @return the loaded ItemStack
      * @throws IOException if there is an error reading from the file
@@ -46,6 +51,7 @@ public class ItemSaver {
 
     /**
      * Serialize an ItemStack to a JsonElement
+     *
      * @param stack the ItemStack to serialize
      * @return the serialized JsonElement
      */
@@ -60,13 +66,14 @@ public class ItemSaver {
 
     /**
      * Deserialize an ItemStack from a JsonElement
+     *
      * @param jsonElement the JsonElement to deserialize
      * @return the deserialized ItemStack
      */
     public static ItemStack deserializeItemStack(JsonElement jsonElement) {
         var jsonDecoded = JsonParser.parseString(jsonElement.toString());
         Optional<Pair<ItemStack, JsonElement>> optional = ItemStack.CODEC.decode(JsonOps.INSTANCE, jsonDecoded).result();
-        if(optional.isEmpty()){
+        if (optional.isEmpty()) {
             return ItemStack.EMPTY;
         }
 

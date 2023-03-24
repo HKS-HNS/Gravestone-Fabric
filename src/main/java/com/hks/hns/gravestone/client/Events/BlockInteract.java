@@ -34,10 +34,14 @@ import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 @Environment(EnvType.SERVER)
 @Mixin(ServerPlayerInteractionManager.class)
 public class BlockInteract {
+
+    // A list to store container IDs for each player
     private static final List<Integer> containerId = new ArrayList<>();
 
+    // A map to store player inventory for each gravestone
     private final HashMap<BlockWorldPos, Inventory> playerInventory = Data.getPlayerInventory();
 
+    // Get the next available container ID for a player
     private static int getNextContainerId(PlayerEntity player) {
         // Find the index of the player's container ID in the containerId list
         int playerIndex = containerId.indexOf(player.getUuid().hashCode());
@@ -55,8 +59,10 @@ public class BlockInteract {
         }
     }
 
+    // Method to handle player interaction with blocks
     @Inject(at = @At("HEAD"), method = "interactBlock")
     public void interactBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
+        // Remove empty gravestone inventories from the playerInventory map and save changes
         for (BlockWorldPos pos : playerInventory.keySet()) {
             if (isEmpty(playerInventory.get(pos))) {
                 playerInventory.remove(pos);
@@ -75,15 +81,17 @@ public class BlockInteract {
             System.out.println("Sign clicked");
             if (playerInventory.containsKey(blockWorldPos)) {
                 System.out.println("Gravestone found");
+                // Get the next container ID for the player
                 int syncId = getNextContainerId(player);
 
+                // Create a container for the
                 NamedScreenHandlerFactory containerProvider = new SimpleNamedScreenHandlerFactory((Inv, Player, In) -> GenericContainerScreenHandler.createGeneric9x6(syncId, player.getInventory(), playerInventory.get(blockWorldPos)), Text.of("Gravestone"));
-
                 player.openHandledScreen(containerProvider);
             }
         }
     }
 
+    // Method to check if an inventory is empty
     public boolean isEmpty(Inventory inventory) {
         if (inventory == null) {
             return true;

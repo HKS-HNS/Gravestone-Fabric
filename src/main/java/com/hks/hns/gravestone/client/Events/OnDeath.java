@@ -32,6 +32,7 @@ import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 @Environment(EnvType.SERVER)
 @Mixin(ServerPlayerEntity.class)
 public abstract class OnDeath {
+
     // HashMap to store player inventories
     private final HashMap<BlockWorldPos, Inventory> playerInventories = Data.getPlayerInventory();
 
@@ -40,22 +41,23 @@ public abstract class OnDeath {
         RegistryKey<DimensionType> dimension = world.getDimensionKey();
         return dimension.equals(DimensionTypes.OVERWORLD) || dimension.equals(DimensionTypes.OVERWORLD_CAVES);
     }
+
     // Helper method to check if the player is underground
     private static boolean isUnderGround(World world, BlockPos pos) {
         RegistryKey<DimensionType> dimension = world.getDimensionKey();
-        return (isOverWorld(world) && pos.getY() < -64 || (dimension.equals(DimensionTypes.THE_NETHER) || dimension.equals(DimensionTypes.THE_END)) && pos.getY() < 0);
+        return (isOverWorld(world) && pos.getY() < -64) || (dimension.equals(DimensionTypes.THE_NETHER) || dimension.equals(DimensionTypes.THE_END)) && pos.getY() < 0;
     }
 
     // Helper method to search for the nearest air block
     private static BlockPos searchAir(BlockPos pos, int radius, World world) {
-
         // If in the overworld or overworld caves and below y level -64, search a larger radius around y level 0
         // If in the nether or end and below y level 0, search a larger radius around y level 0
         if (isUnderGround(world, pos)) {
             pos = new BlockPos(pos.getX(), 0, pos.getZ());
 
-            if(isOverWorld(world))
+            if (isOverWorld(world)) {
                 pos = new BlockPos(pos.getX(), -64, pos.getZ());
+            }
 
             radius = 100;
         }
@@ -79,7 +81,6 @@ public abstract class OnDeath {
                 }
             }
         }
-
         // If no air block was found within the search radius, return the original position
         if (nearest.equals(random)) {
             nearest = pos;
@@ -88,8 +89,7 @@ public abstract class OnDeath {
         return nearest;
     }
 
-    @Inject(at = @At("HEAD"),
-            method = "onDeath")
+    @Inject(at = @At("HEAD"), method = "onDeath")
     public void onPlayerDeath(CallbackInfo ci) {
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
         World world = player.getWorld();
