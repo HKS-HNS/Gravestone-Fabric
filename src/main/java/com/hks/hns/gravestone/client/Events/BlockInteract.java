@@ -1,6 +1,7 @@
 package com.hks.hns.gravestone.client.Events;
 
-import com.hks.hns.gravestone.Data;
+import com.hks.hns.gravestone.BlockWorldPos;
+import com.hks.hns.gravestone.config.Data;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -19,9 +20,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -30,15 +29,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
+
 @Environment(EnvType.SERVER)
 @Mixin(ServerPlayerInteractionManager.class)
 public class BlockInteract {
-    private static final List<Integer> containerId = new ArrayList<>();
-    @Shadow
-    @Final
-    protected ServerPlayerEntity player;
-    private final HashMap<BlockPos, Inventory> playerInventory = Data.getPlayerInventory();
 
+    // A list to store container IDs for each player
+    private static final List<Integer> containerId = new ArrayList<>();
+
+    // A map to store player inventory for each gravestone
+    private final HashMap<BlockWorldPos, Inventory> playerInventory = Data.getPlayerInventory();
+
+    // Get the next available container ID for a player
     private static int getNextContainerId(PlayerEntity player) {
         // Find the index of the player's container ID in the containerId list
         int playerIndex = containerId.indexOf(player.getUuid().hashCode());
@@ -56,35 +59,39 @@ public class BlockInteract {
         }
     }
 
+    // Method to handle player interaction with blocks
     @Inject(at = @At("HEAD"), method = "interactBlock")
     public void interactBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
-        for (BlockPos pos : playerInventory.keySet()) {
+        // Remove empty gravestone inventories from the playerInventory map and save changes
+        for (BlockWorldPos pos : playerInventory.keySet()) {
             if (isEmpty(playerInventory.get(pos))) {
                 playerInventory.remove(pos);
+                savePlayerInventory();
             }
         }
 
         // Test if click is right click
         BlockPos pos = hitResult.getBlockPos();
         Block block = world.getBlockState(pos).getBlock();
-
+        BlockWorldPos blockWorldPos = new BlockWorldPos(pos, world);
         if (block == null) {
             return;
         }
-
         if (block.getDefaultState().getBlock() == Blocks.OAK_SIGN) {
-            if (playerInventory.containsKey(pos)) {
+            System.out.println("Sign clicked");
+            if (playerInventory.containsKey(blockWorldPos)) {
+                System.out.println("Gravestone found");
+                // Get the next container ID for the player
                 int syncId = getNextContainerId(player);
 
-                NamedScreenHandlerFactory containerProvider = new SimpleNamedScreenHandlerFactory((Inv, Player, In) -> {
-                    return GenericContainerScreenHandler.createGeneric9x6(syncId, player.getInventory(), playerInventory.get(pos));
-                }, Text.of("Gravestone"));
-
+                // Create a container for the
+                NamedScreenHandlerFactory containerProvider = new SimpleNamedScreenHandlerFactory((Inv, Player, In) -> GenericContainerScreenHandler.createGeneric9x6(syncId, player.getInventory(), playerInventory.get(blockWorldPos)), Text.of("Gravestone"));
                 player.openHandledScreen(containerProvider);
             }
         }
     }
 
+    // Method to check if an inventory is empty
     public boolean isEmpty(Inventory inventory) {
         if (inventory == null) {
             return true;
