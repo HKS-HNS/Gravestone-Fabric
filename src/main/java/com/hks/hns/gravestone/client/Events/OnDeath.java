@@ -34,17 +34,17 @@ import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 public abstract class OnDeath {
 
     // HashMap to store player inventories
-    private final HashMap<BlockWorldPos, Inventory> playerInventories = Data.getPlayerInventory();
+    private final HashMap < BlockWorldPos, Inventory > playerInventories = Data.getPlayerInventory();
 
     // Helper method to check if the player is in the overworld
     private static boolean isOverWorld(World world) {
-        RegistryKey<DimensionType> dimension = world.getDimensionKey();
+        RegistryKey < DimensionType > dimension = world.getDimensionKey();
         return dimension.equals(DimensionTypes.OVERWORLD) || dimension.equals(DimensionTypes.OVERWORLD_CAVES);
     }
 
     // Helper method to check if the player is underground
     private static boolean isUnderGround(World world, BlockPos pos) {
-        RegistryKey<DimensionType> dimension = world.getDimensionKey();
+        RegistryKey < DimensionType > dimension = world.getDimensionKey();
         return (isOverWorld(world) && pos.getY() < -64) || (dimension.equals(DimensionTypes.THE_NETHER) || dimension.equals(DimensionTypes.THE_END)) && pos.getY() < 0;
     }
 
@@ -59,7 +59,9 @@ public abstract class OnDeath {
                 pos = new BlockPos(pos.getX(), -64, pos.getZ());
             }
 
-            radius = 100;
+            if (world.getBlockState(pos).isAir())
+                return pos;
+            radius = 20;
         }
 
         BlockPos random = pos.add(radius, radius, radius);
@@ -70,10 +72,7 @@ public abstract class OnDeath {
                 for (int z = -radius; z <= radius; z++) {
                     BlockPos pos2 = new BlockPos(pos.getX() + x, pos.getY() + y, pos.getZ() + z);
                     BlockState state = world.getBlockState(pos2);
-
                     if (state.isAir() && !isUnderGround(world, pos2)) {
-                        // If the current position is an air block and closer to the player's position than the current nearest air block,
-                        // update the nearest air block to the current position
                         if (new Vec3d(pos.getX(), pos.getY(), pos.getZ()).distanceTo(new Vec3d(pos2.getX(), pos2.getY(), pos2.getZ())) < new Vec3d(pos.getX(), pos.getY(), pos.getZ()).distanceTo(new Vec3d(nearest.getX(), nearest.getY(), nearest.getZ()))) {
                             nearest = pos2;
                         }
@@ -85,13 +84,11 @@ public abstract class OnDeath {
         if (nearest.equals(random)) {
             nearest = pos;
         }
-
         return nearest;
     }
-
     @Inject(at = @At("HEAD"), method = "onDeath")
     public void onPlayerDeath(CallbackInfo ci) {
-        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+        ServerPlayerEntity player = (ServerPlayerEntity)(Object) this;
         World world = player.getWorld();
         Block block = world.getBlockState(player.getBlockPos()).getBlock();
         BlockPos pos = player.getBlockPos();
@@ -100,14 +97,16 @@ public abstract class OnDeath {
         PlayerInventory playerInventory = player.getInventory();
         boolean drop = false;
 
-        if (!block.getDefaultState().isAir() && block.getDefaultState().getBlock() != Blocks.WATER) {
-            block = world.getBlockState(searchAir(pos, 5, world)).getBlock();
+        if (!block.getDefaultState().isAir() && block.getDefaultState().getBlock() != Blocks.WATER || isUnderGround(world, pos)) {
+            pos = searchAir(pos, 5, world);
+            block = world.getBlockState(pos).getBlock();
         }
 
         if (!block.getDefaultState().isAir() && block.getDefaultState().getBlock() != Blocks.WATER) {
             drop = true;
         } else {
             world.setBlockState(pos, Blocks.OAK_SIGN.getDefaultState());
+            System.out.println("Placed sign at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
             block = world.getBlockState(pos).getBlock();
             BlockEntity blockEntity = world.getBlockEntity(pos);
             SignBlockEntity signBlockEntity = (SignBlockEntity) blockEntity;
