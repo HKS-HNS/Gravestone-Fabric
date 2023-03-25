@@ -64,7 +64,7 @@ jar {
     }
 }
 release {
-    failOnSnapshotDependencies = true
+    failOnSnapshotDependencies = false
     git {
         requireBranch.set('master')
     }
