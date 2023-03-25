@@ -63,6 +63,11 @@ jar {
         rename { "${it}_${project.archivesBaseName}" }
     }
 }
+release {
+    git {
+        requireBranch.set('master')
+    }
+}
 
 // configure the maven publication
 publishing {
