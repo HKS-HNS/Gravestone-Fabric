@@ -2,7 +2,7 @@
 
 Gravestone-Fabric is a Minecraft mod that adds a gravestone to the game when a player dies. The mod is designed to be used on a Minecraft server and saves the data in a JSON file for easy access.
 
-## Features
+## Features 
 
 - Adds a gravestone when a player dies
 - Saves the data in a JSON file for easy access
