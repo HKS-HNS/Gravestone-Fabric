@@ -31,17 +31,17 @@ import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 public abstract class OnDeath {
 
     // HashMap to store player inventories
-    private final ConcurrentHashMap< BlockWorldPos, Inventory > playerInventories = Data.getPlayerInventory();
+    private final ConcurrentHashMap<BlockWorldPos, Inventory> playerInventories = Data.getPlayerInventory();
 
     // Helper method to check if the player is in the overworld
     private static boolean isOverWorld(World world) {
-        RegistryKey < DimensionType > dimension = world.getDimensionKey();
+        RegistryKey<DimensionType> dimension = world.getDimensionKey();
         return dimension.equals(DimensionTypes.OVERWORLD) || dimension.equals(DimensionTypes.OVERWORLD_CAVES);
     }
 
     // Helper method to check if the player is underground
     private static boolean isUnderGround(World world, BlockPos pos) {
-        RegistryKey < DimensionType > dimension = world.getDimensionKey();
+        RegistryKey<DimensionType> dimension = world.getDimensionKey();
         return (isOverWorld(world) && pos.getY() < -64) || (dimension.equals(DimensionTypes.THE_NETHER) || dimension.equals(DimensionTypes.THE_END)) && pos.getY() < 0;
     }
 
@@ -83,9 +83,10 @@ public abstract class OnDeath {
         }
         return nearest;
     }
+
     @Inject(at = @At("HEAD"), method = "onDeath")
     public void onPlayerDeath(CallbackInfo ci) {
-        ServerPlayerEntity player = (ServerPlayerEntity)(Object) this;
+        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
         World world = player.getWorld();
         Block block = world.getBlockState(player.getBlockPos()).getBlock();
         BlockPos pos = player.getBlockPos();

@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.hks.hns.gravestone.client",
+  "package": "com.hks.hns.gravestone.Events",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
   ],
@@ -11,8 +11,9 @@
     "defaultRequire": 1
   },
   "server": [
-    "com.hks.hns.gravestone.Events.BlockInteract",
-    "com.hks.hns.gravestone.Events.OnBreak",
-    "com.hks.hns.gravestone.Events.OnDeath"
+    "BlockInteract",
+    "OnBlockExplosion",
+    "OnBreak",
+    "OnDeath"
   ]
 }

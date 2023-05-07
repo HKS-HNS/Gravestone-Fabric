@@ -124,7 +124,7 @@ public class BlockWorldPos {
                 Objects.equals(world, that.world);
     }
 
-        @Override
+    @Override
     public int hashCode() {
         return Objects.hash(x, y, z, world);
     }

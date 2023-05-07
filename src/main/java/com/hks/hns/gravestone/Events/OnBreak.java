@@ -56,7 +56,7 @@ public class OnBreak {
                     didDrop = true;
                 }
                 if (didDrop) {
-                   // System.out.println("Dropped items");
+                    // System.out.println("Dropped items");
                 }
                 // Remove from hashmap
                 playerInventory.remove(key);
@@ -70,6 +70,7 @@ public class OnBreak {
     public void onBlockBreak(WorldAccess world, BlockPos pos, BlockState state, CallbackInfo ci) {
         dropItems(world, pos, 1);
     }
+
     // Method to drop items from the player inventory when a block is destroyed by explosion
     @Inject(at = @At("HEAD"), method = "onDestroyedByExplosion")
     public void onBlockExplode(World world, BlockPos pos, Explosion explosion, CallbackInfo ci) {
