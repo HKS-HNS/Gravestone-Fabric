@@ -11,8 +11,8 @@
     "defaultRequire": 1
   },
   "server": [
-    "Events.BlockInteract",
-    "Events.OnBreak",
-    "Events.OnDeath"
+    "com.hks.hns.gravestone.Events.BlockInteract",
+    "com.hks.hns.gravestone.Events.OnBreak",
+    "com.hks.hns.gravestone.Events.OnDeath"
   ]
 }

@@ -7,13 +7,9 @@
   "authors": [
     "HNS_yt"
   ],
-  "contact": {},
   "license": "MIT",
   "environment": "server",
   "entrypoints": {
-    "client": [
-      "com.hks.hns.gravestone.client.GravestoneClient"
-    ],
     "main": [
       "com.hks.hns.gravestone.Gravestone"
     ]

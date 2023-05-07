@@ -1,4 +1,4 @@
-package com.hks.hns.gravestone.client.Events;
+package com.hks.hns.gravestone.Events;
 
 import com.hks.hns.gravestone.BlockWorldPos;
 import com.hks.hns.gravestone.config.Data;
@@ -26,8 +26,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 
@@ -39,7 +39,7 @@ public class BlockInteract {
     private static final List<Integer> containerId = new ArrayList<>();
 
     // A map to store player inventory for each gravestone
-    private final HashMap<BlockWorldPos, Inventory> playerInventory = Data.getPlayerInventory();
+    private final ConcurrentHashMap<BlockWorldPos, Inventory> playerInventory = Data.getPlayerInventory();
 
     // Get the next available container ID for a player
     private static int getNextContainerId(PlayerEntity player) {
@@ -63,12 +63,8 @@ public class BlockInteract {
     @Inject(at = @At("HEAD"), method = "interactBlock")
     public void interactBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         // Remove empty gravestone inventories from the playerInventory map and save changes
-        for (BlockWorldPos pos : playerInventory.keySet()) {
-            if (isEmpty(playerInventory.get(pos))) {
-                playerInventory.remove(pos);
-                savePlayerInventory();
-            }
-        }
+        playerInventory.entrySet().removeIf(entry -> isEmpty(entry.getValue()));
+        savePlayerInventory();
 
         // Test if click is right click
         BlockPos pos = hitResult.getBlockPos();

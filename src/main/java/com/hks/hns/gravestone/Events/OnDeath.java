@@ -1,9 +1,7 @@
-package com.hks.hns.gravestone.client.Events;
+package com.hks.hns.gravestone.Events;
 
 import com.hks.hns.gravestone.BlockWorldPos;
 import com.hks.hns.gravestone.config.Data;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -25,16 +23,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 
-@Environment(EnvType.SERVER)
 @Mixin(ServerPlayerEntity.class)
 public abstract class OnDeath {
 
     // HashMap to store player inventories
-    private final HashMap < BlockWorldPos, Inventory > playerInventories = Data.getPlayerInventory();
+    private final ConcurrentHashMap< BlockWorldPos, Inventory > playerInventories = Data.getPlayerInventory();
 
     // Helper method to check if the player is in the overworld
     private static boolean isOverWorld(World world) {

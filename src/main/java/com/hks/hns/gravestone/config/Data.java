@@ -15,10 +15,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Data {
     // HashMap that stores the player's inventory at their death location
-    static HashMap<BlockWorldPos, Inventory> playerInventory = new HashMap<>();
+    static ConcurrentHashMap<BlockWorldPos, Inventory> playerInventory = new ConcurrentHashMap<>();
 
     // Gson instance with pretty printing enabled
     static Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -26,7 +27,7 @@ public class Data {
     // File to save the player inventory data
     static File saveFile = new File("deaths.json");
 
-    public static HashMap<BlockWorldPos, Inventory> getPlayerInventory() {
+    public static ConcurrentHashMap<BlockWorldPos, Inventory> getPlayerInventory() {
         return playerInventory;
     }
 
