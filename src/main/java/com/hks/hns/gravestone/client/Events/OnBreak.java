@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -26,6 +27,7 @@ import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 public class OnBreak {
 
     // A map to store player inventory for each gravestone
+    @Unique
     private static final HashMap<BlockWorldPos, Inventory> playerInventory = Data.getPlayerInventory();
 
     // Method to drop items from the player inventory when a block is replaced
@@ -37,6 +39,7 @@ public class OnBreak {
     }
 
     // Method to drop items from a gravestone's inventory and remove the inventory from the playerInventory map
+    @Unique
     private static void dropItems(WorldAccess world, BlockPos pos, int up) {
         for (BlockWorldPos key : playerInventory.keySet()) {
             BlockPos keyPos = key.getBlockPos();

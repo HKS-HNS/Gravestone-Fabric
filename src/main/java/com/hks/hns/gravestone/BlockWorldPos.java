@@ -35,7 +35,7 @@ public class BlockWorldPos {
      * @return a BlockPos representing this BlockWorldPos
      */
     public BlockPos getBlockPos() {
-        return new BlockPos(x, y, z);
+        return new BlockPos((int) x,(int) y,(int) z);
     }
 
     /**
@@ -44,7 +44,7 @@ public class BlockWorldPos {
      * @return a Vec3i representing this BlockWorldPos
      */
     public Vec3i getVec3i() {
-        return new Vec3i(x, y, z);
+        return new Vec3i((int)x, (int)y, (int)z);
     }
 
     /**

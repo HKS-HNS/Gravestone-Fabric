@@ -9,18 +9,21 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
+import net.minecraft.block.entity.SignText;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.dimension.DimensionTypes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -34,21 +37,25 @@ import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 public abstract class OnDeath {
 
     // HashMap to store player inventories
+    @Unique
     private final HashMap < BlockWorldPos, Inventory > playerInventories = Data.getPlayerInventory();
 
     // Helper method to check if the player is in the overworld
+    @Unique
     private static boolean isOverWorld(World world) {
         RegistryKey < DimensionType > dimension = world.getDimensionKey();
         return dimension.equals(DimensionTypes.OVERWORLD) || dimension.equals(DimensionTypes.OVERWORLD_CAVES);
     }
 
     // Helper method to check if the player is underground
+    @Unique
     private static boolean isUnderGround(World world, BlockPos pos) {
         RegistryKey < DimensionType > dimension = world.getDimensionKey();
         return (isOverWorld(world) && pos.getY() < -64) || (dimension.equals(DimensionTypes.THE_NETHER) || dimension.equals(DimensionTypes.THE_END)) && pos.getY() < 0;
     }
 
     // Helper method to search for the nearest air block
+    @Unique
     private static BlockPos searchAir(BlockPos pos, int radius, World world) {
         // If in the overworld or overworld caves and below y level -64, search a larger radius around y level 0
         // If in the nether or end and below y level 0, search a larger radius around y level 0
@@ -108,10 +115,14 @@ public abstract class OnDeath {
             world.setBlockState(pos, Blocks.OAK_SIGN.getDefaultState());
             System.out.println("Placed sign at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
             block = world.getBlockState(pos).getBlock();
+            Text[] signMessage = {Text.of("RIP"), Text.of(player.getName().getString())};
+            SignText signText = new SignText(signMessage,new Text[]{}, DyeColor.BLACK, false);
             BlockEntity blockEntity = world.getBlockEntity(pos);
             SignBlockEntity signBlockEntity = (SignBlockEntity) blockEntity;
-            signBlockEntity.setTextOnRow(0, Text.of("RIP"));
-            signBlockEntity.setTextOnRow(1, Text.of(player.getName().getString()));
+            assert signBlockEntity != null;
+            signBlockEntity.setWaxed(true);
+            signBlockEntity.setText(signText, true);
+            signBlockEntity.setText(signText, false);
             signBlockEntity.markDirty();
             world.updateListeners(pos, block.getDefaultState(), block.getDefaultState(), 3);
 

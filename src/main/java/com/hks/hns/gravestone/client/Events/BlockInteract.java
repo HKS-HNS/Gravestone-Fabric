@@ -21,6 +21,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -36,12 +37,15 @@ import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 public class BlockInteract {
 
     // A list to store container IDs for each player
+    @Unique
     private static final List<Integer> containerId = new ArrayList<>();
 
     // A map to store player inventory for each gravestone
+    @Unique
     private final HashMap<BlockWorldPos, Inventory> playerInventory = Data.getPlayerInventory();
 
     // Get the next available container ID for a player
+    @Unique
     private static int getNextContainerId(PlayerEntity player) {
         // Find the index of the player's container ID in the containerId list
         int playerIndex = containerId.indexOf(player.getUuid().hashCode());
@@ -92,6 +96,7 @@ public class BlockInteract {
     }
 
     // Method to check if an inventory is empty
+    @Unique
     public boolean isEmpty(Inventory inventory) {
         if (inventory == null) {
             return true;
