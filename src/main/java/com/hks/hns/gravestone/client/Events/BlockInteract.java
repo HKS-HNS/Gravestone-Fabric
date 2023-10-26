@@ -67,12 +67,18 @@ public class BlockInteract {
     @Inject(at = @At("HEAD"), method = "interactBlock")
     public void interactBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         // Remove empty gravestone inventories from the playerInventory map and save changes
+        List<BlockWorldPos> keysToRemove = new ArrayList<>(); // 1. Create a list to collect keys to remove
+
         for (BlockWorldPos pos : playerInventory.keySet()) {
             if (isEmpty(playerInventory.get(pos))) {
-                playerInventory.remove(pos);
-                savePlayerInventory();
+                keysToRemove.add(pos); // 2. Iterate over the map and collect keys of empty inventories
             }
         }
+
+        for (BlockWorldPos pos : keysToRemove) {
+            playerInventory.remove(pos); // 3. Remove the collected keys from the map
+        }
+        savePlayerInventory();
 
         // Test if click is right click
         BlockPos pos = hitResult.getBlockPos();

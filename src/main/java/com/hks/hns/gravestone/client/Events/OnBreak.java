@@ -18,7 +18,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 
@@ -41,6 +43,8 @@ public class OnBreak {
     // Method to drop items from a gravestone's inventory and remove the inventory from the playerInventory map
     @Unique
     private static void dropItems(WorldAccess world, BlockPos pos, int up) {
+        List<BlockWorldPos> keysToRemove = new ArrayList<>(); // 1. Create a list to collect keys to remove
+
         for (BlockWorldPos key : playerInventory.keySet()) {
             BlockPos keyPos = key.getBlockPos();
             if (keyPos.equals(pos) || keyPos.equals(pos.up(up))) {
@@ -57,12 +61,18 @@ public class OnBreak {
                 if (didDrop) {
                     System.out.println("Dropped items");
                 }
-                // Remove from hashmap
-                playerInventory.remove(key);
-                savePlayerInventory();
+                keysToRemove.add(key); // Add the key to the removal list instead of removing it directly
             }
         }
+
+        // 2. Remove the collected keys from the map
+        for (BlockWorldPos keyToRemove : keysToRemove) {
+            playerInventory.remove(keyToRemove);
+        }
+
+        savePlayerInventory();
     }
+
 
     // Method to drop items from the player inventory when a block is broken
     @Inject(at = @At("HEAD"), method = "onBroken")

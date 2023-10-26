@@ -115,25 +115,30 @@ public abstract class OnDeath {
             world.setBlockState(pos, Blocks.OAK_SIGN.getDefaultState());
             System.out.println("Placed sign at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
             block = world.getBlockState(pos).getBlock();
-            Text[] signMessage = {Text.of("RIP"), Text.of(player.getName().getString())};
-            SignText signText = new SignText(signMessage,new Text[]{}, DyeColor.BLACK, false);
+            Text[] signMessage = {Text.of("RIP"), Text.of(player.getName().getString()), Text.empty(), Text.empty()};
+            System.out.println("Sign message: " + signMessage[0].getString() + " " + signMessage[1].getString());
+            SignText signText = new SignText(signMessage, new Text[]{Text.empty(), Text.empty(), Text.empty(), Text.empty()}, DyeColor.BLACK, false);
             BlockEntity blockEntity = world.getBlockEntity(pos);
             SignBlockEntity signBlockEntity = (SignBlockEntity) blockEntity;
             assert signBlockEntity != null;
+            System.out.println("Sign block entity: " + signBlockEntity);
             signBlockEntity.setWaxed(true);
             signBlockEntity.setText(signText, true);
             signBlockEntity.setText(signText, false);
             signBlockEntity.markDirty();
-            world.updateListeners(pos, block.getDefaultState(), block.getDefaultState(), 3);
-
+            //world.updateListeners(pos, block.getDefaultState(), block.getDefaultState(), 3);
+            System.out.println("Sign placed");
             // Create inventory with 54 slots
             Inventory inventory = new SimpleInventory(54);
             for (int i = 0; i < playerInventory.size(); i++) {
-                inventory.setStack(i, playerInventory.getStack(i));
+                if(playerInventory.getStack(i) != null && !playerInventory.getStack(i).isEmpty())
+                { inventory.setStack(i, playerInventory.getStack(i));}
             }
+            System.out.println("Inventory created");
             worldPos.setPos(pos);
             playerInventories.put(worldPos, inventory);
             savePlayerInventory();
+            System.out.println("Inventory saved");
         }
 
         // Disable block drop
