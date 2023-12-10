@@ -8,6 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.block.entity.SignText;
 import net.minecraft.entity.player.PlayerInventory;
@@ -28,6 +29,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 
 import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
@@ -95,11 +99,13 @@ public abstract class OnDeath {
     }
     @Inject(at = @At("HEAD"), method = "onDeath")
     public void onPlayerDeath(CallbackInfo ci) {
+
         ServerPlayerEntity player = (ServerPlayerEntity)(Object) this;
         World world = player.getWorld();
-        Block block = world.getBlockState(player.getBlockPos()).getBlock();
         BlockPos pos = player.getBlockPos();
+        Block block = world.getBlockState(pos).getBlock();
         BlockWorldPos worldPos = new BlockWorldPos(pos, world);
+
         // Clone player inventory
         PlayerInventory playerInventory = player.getInventory();
         boolean drop = false;
@@ -111,26 +117,31 @@ public abstract class OnDeath {
 
         if (!block.getDefaultState().isAir() && block.getDefaultState().getBlock() != Blocks.WATER) {
             drop = true;
+
         } else {
             world.setBlockState(pos, Blocks.OAK_SIGN.getDefaultState());
             System.out.println("Placed sign at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
-            block = world.getBlockState(pos).getBlock();
-            Text[] signMessage = {Text.of("RIP"), Text.of(player.getName().getString())};
-            SignText signText = new SignText(signMessage,new Text[]{}, DyeColor.BLACK, false);
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-            SignBlockEntity signBlockEntity = (SignBlockEntity) blockEntity;
-            assert signBlockEntity != null;
-            signBlockEntity.setWaxed(true);
+            Date time = new Date();
+            Text[] signMessage = {Text.literal("RIP"), Text.literal(player.getName().getString()), Text.literal(new SimpleDateFormat("yyyy MM dd").format(time))};
+            SignText signText = new SignText();
+
+            for (int i = 0; i < signMessage.length; i++) {
+                signText = signText.withMessage(i, signMessage[i]);
+            }
+
+            signText = signText.withGlowing(true);
+            SignBlockEntity signBlockEntity = world.getBlockEntity(pos, BlockEntityType.SIGN).orElseThrow();
             signBlockEntity.setText(signText, true);
             signBlockEntity.setText(signText, false);
-            signBlockEntity.markDirty();
-            world.updateListeners(pos, block.getDefaultState(), block.getDefaultState(), 3);
+            signBlockEntity.setWaxed(true);
+            world.updateListeners(pos, block.getDefaultState(), signBlockEntity.getCachedState(), 3);
 
             // Create inventory with 54 slots
             Inventory inventory = new SimpleInventory(54);
             for (int i = 0; i < playerInventory.size(); i++) {
                 inventory.setStack(i, playerInventory.getStack(i));
             }
+
             worldPos.setPos(pos);
             playerInventories.put(worldPos, inventory);
             savePlayerInventory();
