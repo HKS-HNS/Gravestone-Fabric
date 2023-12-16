@@ -50,11 +50,13 @@ public class Data {
 
             JsonArray inventoryArray = new JsonArray();
             Inventory inventory = playerInventory.get(pos);
+
             for (int i = 0; i < inventory.size(); i++) {
                 if (!inventory.getStack(i).isEmpty()) {
                     inventoryArray.add(ItemSaver.serializeItemStack(inventory.getStack(i)));
                 }
             }
+
             posObject.add("inventory", inventoryArray);
             jsonArray.add(posObject);
         }
@@ -63,6 +65,7 @@ public class Data {
         // Write the JSON data to the save file
         try (FileWriter writer = new FileWriter(saveFile)) {
             gson.toJson(jsonObject, writer);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -101,6 +104,7 @@ public class Data {
 
                 JsonArray inventoryArray = posObject.get("inventory").getAsJsonArray();
                 Inventory inventory = new SimpleInventory(54);
+
                 for (int i = 0; i < inventoryArray.size(); i++) {
                     if (!inventoryArray.get(i).isJsonNull()) {
                         ItemStack itemStack = ItemSaver.deserializeItemStack(inventoryArray.get(i).getAsJsonObject());

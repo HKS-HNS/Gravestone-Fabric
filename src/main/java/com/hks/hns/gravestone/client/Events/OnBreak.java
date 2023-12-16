@@ -49,21 +49,16 @@ public class OnBreak {
             BlockPos keyPos = key.getBlockPos();
 
             if (keyPos.equals(pos) || keyPos.equals(pos.up(up))) {
-                System.out.println(keyPos);
+
                 // Drop inventory
-                boolean didDrop = false;
                 Inventory inventory = playerInventory.get(key);
 
                 for (int i = 0; i < inventory.size(); i++) {
                     // Spawn item in the middle of the block
                     ItemEntity itemEntity = new ItemEntity((World) world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, inventory.getStack(i));
                     world.spawnEntity(itemEntity);
-                    didDrop = true;
                 }
 
-                if (didDrop) {
-                    System.out.println("Dropped items");
-                }
 
                 // Remove from hashmap
                 keysToRemove.add(key);

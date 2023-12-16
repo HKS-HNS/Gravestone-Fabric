@@ -82,9 +82,8 @@ public class BlockInteract {
             return;
         }
         if (block.getDefaultState().getBlock() == Blocks.OAK_SIGN) {
-            System.out.println("Sign clicked");
             if (playerInventory.containsKey(blockWorldPos)) {
-                System.out.println("Gravestone found");
+
                 // Get the next container ID for the player
                 int syncId = getNextContainerId(player);
 
