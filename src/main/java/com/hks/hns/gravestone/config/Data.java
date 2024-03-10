@@ -14,11 +14,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Data {
     // HashMap that stores the player's inventory at their death location
-    static HashMap<BlockWorldPos, Inventory> playerInventory = new HashMap<>();
+    static ConcurrentHashMap<BlockWorldPos, Inventory> playerInventory = new ConcurrentHashMap<>();
 
     // Gson instance with pretty printing enabled
     static Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -26,7 +28,7 @@ public class Data {
     // File to save the player inventory data
     static File saveFile = new File("deaths.json");
 
-    public static HashMap<BlockWorldPos, Inventory> getPlayerInventory() {
+    public static ConcurrentHashMap<BlockWorldPos, Inventory> getPlayerInventory() {
         return playerInventory;
     }
 
@@ -67,7 +69,7 @@ public class Data {
             gson.toJson(jsonObject, writer);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getGlobal().log(Level.SEVERE, "Error saving player inventory data", e);
         }
     }
 
@@ -114,7 +116,7 @@ public class Data {
                 playerInventory.put(pos, inventory);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getGlobal().log(Level.SEVERE, "Error loading player inventory data", e);
         }
     }
 }

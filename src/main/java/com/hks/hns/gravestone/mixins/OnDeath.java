@@ -1,4 +1,4 @@
-package com.hks.hns.gravestone.client.Events;
+package com.hks.hns.gravestone.mixins;
 
 import com.hks.hns.gravestone.BlockWorldPos;
 import com.hks.hns.gravestone.config.Data;
@@ -7,7 +7,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.block.entity.SignText;
@@ -17,7 +16,6 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -30,9 +28,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 
@@ -42,7 +39,7 @@ public abstract class OnDeath {
 
     // HashMap to store player inventories
     @Unique
-    private final HashMap < BlockWorldPos, Inventory > playerInventories = Data.getPlayerInventory();
+    private final ConcurrentHashMap< BlockWorldPos, Inventory > playerInventories = Data.getPlayerInventory();
 
     // Helper method to check if the player is in the overworld
     @Unique
