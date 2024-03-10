@@ -1,4 +1,4 @@
-package com.hks.hns.gravestone.client.Events;
+package com.hks.hns.gravestone.mixins;
 
 import com.hks.hns.gravestone.BlockWorldPos;
 import com.hks.hns.gravestone.config.Data;
@@ -27,8 +27,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.hks.hns.gravestone.config.Data.savePlayerInventory;
 
@@ -42,7 +42,7 @@ public class BlockInteract {
 
     // A map to store player inventory for each gravestone
     @Unique
-    private final HashMap<BlockWorldPos, Inventory> playerInventory = Data.getPlayerInventory();
+    private final ConcurrentHashMap<BlockWorldPos, Inventory> playerInventory = Data.getPlayerInventory();
 
     // Get the next available container ID for a player
     @Unique
