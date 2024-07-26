@@ -56,12 +56,14 @@ public class Data {
             for (int i = 0; i < inventory.size(); i++) {
                 if (!inventory.getStack(i).isEmpty()) {
                     inventoryArray.add(ItemSaver.serializeItemStack(inventory.getStack(i)));
+
                 }
             }
 
             posObject.add("inventory", inventoryArray);
             jsonArray.add(posObject);
         }
+
         jsonObject.add("playerInventory", jsonArray);
 
         // Write the JSON data to the save file
@@ -81,6 +83,7 @@ public class Data {
     public static void loadPlayerInventory() {
         // If the save file does not exist, return
         MinecraftServer server = Gravestone.getServer();
+
         if (!saveFile.exists() || server == null) {
             return;
         }
@@ -95,13 +98,17 @@ public class Data {
             // Iterate through the JSON data and create a BlockPos and inventory for each
             for (JsonElement element : jsonArray) {
                 JsonObject posObject = element.getAsJsonObject();
+
                 int x = posObject.get("x").getAsInt();
                 int y = posObject.get("y").getAsInt();
                 int z = posObject.get("z").getAsInt();
+
                 String world = posObject.get("world").getAsString();
                 String worldRegistry = posObject.get("worldRegistry").getAsString();
+
                 Identifier dimensionId = Identifier.tryParse(worldRegistry);
-                Identifier worldId = new Identifier(world);
+                Identifier worldId = Identifier.of(world);
+
                 BlockWorldPos pos = new BlockWorldPos(x, y, z, server.getWorld(RegistryKey.of(RegistryKey.ofRegistry(dimensionId), worldId)));
 
                 JsonArray inventoryArray = posObject.get("inventory").getAsJsonArray();
@@ -111,8 +118,10 @@ public class Data {
                     if (!inventoryArray.get(i).isJsonNull()) {
                         ItemStack itemStack = ItemSaver.deserializeItemStack(inventoryArray.get(i).getAsJsonObject());
                         inventory.setStack(i, itemStack);
+
                     }
                 }
+
                 playerInventory.put(pos, inventory);
             }
         } catch (IOException e) {
