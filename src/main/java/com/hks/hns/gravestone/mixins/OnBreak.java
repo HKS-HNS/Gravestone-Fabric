@@ -8,6 +8,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.screen.GenericContainerScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -36,8 +39,23 @@ public class OnBreak {
     @Inject(at = @At("HEAD"), method = "replace(Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;II)V")
     private static void onBlockReplace(BlockState state, BlockState newState, WorldAccess world, BlockPos pos, int flags, int maxUpdateDepth, CallbackInfo ci) {
         if (state.getBlock() != newState.getBlock()) {
+            closeInventories(pos, (ServerWorld) world);
             dropItems(world, pos, 0);
         }
+    }
+
+    // Method to drop items from the player inventory when a block is broken
+    @Inject(at = @At("HEAD"), method = "onBroken")
+    public void onBlockBreak(WorldAccess world, BlockPos pos, BlockState state, CallbackInfo ci) {
+        closeInventories(pos, (ServerWorld) world);
+        dropItems(world, pos, 1);
+    }
+
+    // Method to drop items from the player inventory when a block is destroyed by explosion
+    @Inject(at = @At("HEAD"), method = "onDestroyedByExplosion")
+    public void onBlockExplode(World world, BlockPos pos, Explosion explosion, CallbackInfo ci) {
+        closeInventories(pos, (ServerWorld) world);
+        dropItems(world, pos, 1);
     }
 
     // Method to drop items from a gravestone's inventory and remove the inventory from the playerInventory map
@@ -72,16 +90,20 @@ public class OnBreak {
         }
     }
 
-    // Method to drop items from the player inventory when a block is broken
-    @Inject(at = @At("HEAD"), method = "onBroken")
-    public void onBlockBreak(WorldAccess world, BlockPos pos, BlockState state, CallbackInfo ci) {
-        dropItems(world, pos, 1);
-    }
+    @Unique
+    private static void closeInventories(BlockPos pos, ServerWorld world) {
+        BlockWorldPos blockWorldPos = new BlockWorldPos(pos, world);
 
-    // Method to drop items from the player inventory when a block is destroyed by explosion
-    @Inject(at = @At("HEAD"), method = "onDestroyedByExplosion")
-    public void onBlockExplode(World world, BlockPos pos, Explosion explosion, CallbackInfo ci) {
-        dropItems(world, pos, 1);
+        if(playerInventory.containsKey(blockWorldPos)) {
+            Inventory inventory = playerInventory.get(blockWorldPos);
+
+            for (ServerPlayerEntity player : world.getPlayers()) {
+                if (player.currentScreenHandler instanceof GenericContainerScreenHandler container && container.getInventory() == inventory) {
+                        player.closeHandledScreen();
+
+                }
+            }
+        }
     }
 
 }
